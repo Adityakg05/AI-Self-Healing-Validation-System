@@ -25,6 +25,10 @@ def home():
 def test():
     return {"status": "working"}
 
+@app.get("/health")
+def health():
+    return {"status": "ok"}
+
 @app.post("/run-agent")
 def trigger_agent():
     """
