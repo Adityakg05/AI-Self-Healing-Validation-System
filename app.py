@@ -4,7 +4,7 @@ import uvicorn
 from datetime import datetime, timezone
 from typing import Optional
 from fastapi import FastAPI, Header, Request
-from fastapi.responses import JSONResponse
+from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
 from config import settings
 
@@ -19,7 +19,7 @@ app = FastAPI(title="AI Self-Healing System")
 
 @app.get("/")
 def home():
-    return {"message": "AI Self-Healing System is running 🚀"}
+    return RedirectResponse(url="/docs")
 
 @app.get("/test")
 def test():

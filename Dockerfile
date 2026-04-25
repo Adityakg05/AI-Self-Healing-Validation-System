@@ -12,5 +12,4 @@ COPY . .
 # Expose ports for FastAPI and Streamlit
 EXPOSE 8000 8501
 
-# Default command starts everything
-CMD ["python", "run_all.py"]
+CMD ["sh", "-c", "uvicorn app:app --host 0.0.0.0 --port $PORT"]
