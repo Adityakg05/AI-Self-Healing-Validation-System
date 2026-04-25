@@ -15,7 +15,57 @@ _handler.setFormatter(_fmt)
 logging.basicConfig(level=logging.INFO, handlers=[_handler, logging.StreamHandler()])
 logger = logging.getLogger("ProductionService")
 
-app = FastAPI(title="SRE Monitored Service")
+app = FastAPI(title="AI Self-Healing System")
+
+@app.get("/")
+def home():
+    return {"message": "AI Self-Healing System is running 🚀"}
+
+@app.get("/test")
+def test():
+    return {"status": "working"}
+
+@app.post("/run-agent")
+def trigger_agent():
+    """
+    Manually trigger the self-healing agent workflow via API.
+    """
+    try:
+        from main import run_self_healing_workflow
+        
+        logger.info("Self-healing agent triggered via /run-agent endpoint")
+        result = run_self_healing_workflow()
+        
+        if "error" in result:
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "status": "error",
+                    "message": "Workflow execution failed",
+                    "error": result["error"]
+                }
+            )
+            
+        return {
+            "status": "completed",
+            "message": "Self-healing process executed successfully",
+            "details": {
+                "root_cause_found": result.get("root_cause_identified", False),
+                "fix_validated": result.get("fix_validated", False),
+                "iterations": result.get("iteration_count", 0),
+                "pr_url": result.get("pr_url", "N/A")
+            }
+        }
+    except Exception as e:
+        logger.error(f"Error triggering agent: {str(e)}")
+        return JSONResponse(
+            status_code=500,
+            content={
+                "status": "error",
+                "message": "An unexpected error occurred",
+                "error": str(e)
+            }
+        )
 
 class DataResponse(BaseModel):
     data: dict
@@ -58,4 +108,5 @@ async def handle_crash(request: Request, exc: Exception):
     return JSONResponse(status_code=500, content={"error": "Internal Server Error"})
 
 if __name__ == "__main__":
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    port = int(os.environ.get("PORT", 8000))
+    uvicorn.run("app:app", host="0.0.0.0", port=port)
