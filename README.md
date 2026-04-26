@@ -42,3 +42,4 @@ I built an agentic workflow that monitors application logs. When it detects a cr
 
 ## 📝 Personal Note
 I built this project to explore how AI agents can handle real-world tasks like incident response. One challenge I faced was making sure the agent didn't get stuck in an infinite loop when it couldn't find a fix—adding iteration limits and validation feedback solved this.
+
