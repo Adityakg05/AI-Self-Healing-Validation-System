@@ -25,7 +25,7 @@ from config import settings
 from graph import sre_graph
 from state import create_initial_state
 
-# Load env vars
+# Load env vars - updated deployment
 load_dotenv()
 
 
