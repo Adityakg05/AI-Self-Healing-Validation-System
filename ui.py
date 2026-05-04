@@ -141,7 +141,9 @@ Please investigate and fix the issue.
 
     with status_container:
         st.info("🤖 Executing self-healing workflow...")
-        progress_bar = st.progress(0)
+        progress_bar = st.p
+        
+        rogress(0)
         status_text = st.empty()
 
     try:
@@ -360,11 +362,18 @@ def main():
         st.header("🤖 Self-Healing Workflow")
 
         if st.button("🚀 Run Self-Healing Agent", type="primary", use_container_width=True):
-            # Check if logs exist
-            if not os.path.exists(settings.log_file):
-                st.warning("⚠️ No logs found. Trigger a crash first!")
-            else:
-                run_workflow()
+            # Check if logs exist by fetching from backend API
+            try:
+                backend_url = os.getenv("BACKEND_URL", f"http://127.0.0.1:8000")
+                logs_response = httpx.get(f"{backend_url}/api/logs", timeout=5.0)
+                logs_data = logs_response.json()
+                
+                if logs_data.get("status") == "success" and logs_data.get("logs"):
+                    run_workflow()
+                else:
+                    st.warning("⚠️ No logs found. Trigger a crash first!")
+            except Exception as e:
+                st.error(f"❌ Error checking logs: {str(e)}")
 
     with tab2:
         st.header("Workflow Architecture")

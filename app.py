@@ -103,6 +103,19 @@ async def get_data(
         timestamp=datetime.now(timezone.utc).isoformat()
     )
 
+@app.get("/api/logs")
+def get_logs():
+    """Retrieve application logs."""
+    try:
+        if os.path.exists(settings.log_file):
+            with open(settings.log_file, "r") as f:
+                logs = f.read()
+            return {"logs": logs, "status": "success"}
+        else:
+            return {"logs": "", "status": "not_found", "message": "Log file not found"}
+    except Exception as e:
+        return {"logs": "", "status": "error", "message": str(e)}
+
 @app.exception_handler(Exception)
 async def handle_crash(request: Request, exc: Exception):
     logger.error(f"CRITICAL ERROR in {request.url.path}: {str(exc)}", exc_info=True)
