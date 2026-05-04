@@ -314,6 +314,8 @@ def main():
         - 📝 GitHub PR automation
         - 📊 LangSmith observability
         """)
+        st.markdown("### 🔗 Deployed Application")
+        st.markdown("[AI-Self-Healing-Validation-System](https://ai-self-healing-validation-system-ui.onrender.com)")
 
         st.markdown("---")
         st.caption("Built with LangGraph & Streamlit")

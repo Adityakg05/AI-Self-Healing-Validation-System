@@ -35,7 +35,11 @@ I built an agentic workflow that monitors application logs. When it detects a cr
 3. **Start:** Run `python run_all.py` to launch the app and the dashboard.
 4. **Test:** Trigger a bug from the dashboard and watch the healing loop start.
 
-## 🔮 Future Improvements
+## � Deployed Application
+- **Streamlit UI:** [AI-Self-Healing-Validation-System](https://ai-self-healing-validation-system-ui.onrender.com)
+- **FastAPI Backend:** [API Documentation](https://ai-self-healing-validation-system.onrender.com/docs)
+
+## �🔮 Future Improvements
 - **Better Testing:** Move from simple syntax checks to running actual unit tests in a container.
 - **Log Sources:** Connect to real monitoring tools like Datadog instead of local files.
 - **Multi-File Fixes:** Expand the agent to handle bugs that span across multiple files.
