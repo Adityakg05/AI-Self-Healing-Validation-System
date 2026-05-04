@@ -15,7 +15,7 @@ _handler.setFormatter(_fmt)
 logging.basicConfig(level=logging.INFO, handlers=[_handler, logging.StreamHandler()])
 logger = logging.getLogger("ProductionService")
 
-app = FastAPI(title="AI Self-Healing System")
+app = FastAPI(title="AI-Self-Healing-Validation-System")
 
 @app.get("/")
 def home():
