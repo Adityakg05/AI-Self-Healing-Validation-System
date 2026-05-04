@@ -29,7 +29,7 @@ class Settings(BaseSettings):
 
     # App
     app_port: int = 8000
-    log_file: str = "app_logs.txt"
+    log_file: str = "/tmp/app_logs.txt"
     max_iterations: int = 3
 
     # LangSmith
