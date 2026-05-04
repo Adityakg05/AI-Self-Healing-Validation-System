@@ -50,14 +50,15 @@ class Settings(BaseSettings):
             raise ValueError(
                 f"LLM_PROVIDER must be 'groq' or 'gemini', got: {self.llm_provider!r}"
             )
+        # Make validation more lenient for deployed environment
         if self.llm_provider == "groq" and not self.groq_api_key:
-            raise ValueError(
-                "GROQ_API_KEY is required when LLM_PROVIDER=groq."
-            )
+            # Don't raise error, just log warning
+            import warnings
+            warnings.warn("GROQ_API_KEY is not set. Some features may not work.")
         if self.llm_provider == "gemini" and not self.gemini_api_key:
-            raise ValueError(
-                "GEMINI_API_KEY is required when LLM_PROVIDER=gemini."
-            )
+            # Don't raise error, just log warning
+            import warnings
+            warnings.warn("GEMINI_API_KEY is not set. Some features may not work.")
         return self
 
 
