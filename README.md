@@ -1,6 +1,10 @@
-# AI Self-Healing SRE Agent
+# AI-Self-Healing-Validation-System
 
 A simple but effective system that uses AI agents to find and fix bugs in a web application. Instead of just sending an alert, this tool investigates the logs and proposes a code fix automatically.
+
+## 🌐 Deployed Application
+- **Streamlit UI:** [AI-Self-Healing-Validation-System](https://ai-self-healing-validation-system-ui.onrender.com)
+- **FastAPI Backend:** [API Documentation](https://ai-self-healing-validation-system.onrender.com/docs)
 
 ## ❓ The Problem
 In many small projects, a simple bug (like a missing key in a dictionary) can crash a service and go unnoticed for hours. Manually checking logs and writing a fix is repetitive work. I wanted to see if I could automate this triage process using LLMs.
