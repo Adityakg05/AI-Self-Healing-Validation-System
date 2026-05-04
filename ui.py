@@ -142,9 +142,7 @@ Please investigate and fix the issue.
 
     with status_container:
         st.info("🤖 Executing self-healing workflow...")
-        progress_bar = st.p
-        
-        rogress(0)
+        progress_bar = st.progress(0)
         status_text = st.empty()
 
     try:
