@@ -8,7 +8,7 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
 from config import settings
 
-# Setup Logging
+# Setup logging
 _fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 _handler = logging.FileHandler(settings.log_file)
 _handler.setFormatter(_fmt)
@@ -23,17 +23,17 @@ def home():
 
 @app.get("/test")
 def test():
+    # Basic connectivity check
     return {"status": "working"}
 
 @app.get("/health")
 def health():
+    # Readiness probe for monitoring systems
     return {"status": "ok"}
 
 @app.post("/run-agent")
 def trigger_agent():
-    """
-    Manually trigger the self-healing agent workflow via API.
-    """
+    """Trigger self-healing agent workflow."""
     try:
         from main import run_self_healing_workflow
         
@@ -81,11 +81,8 @@ async def get_data(
     request: Request,
     x_trigger_bug: Optional[str] = Header(None, alias="X-Trigger-Bug")
 ):
-    """
-    Core data endpoint.
-    BUG: When X-Trigger-Bug is 'true', it crashes with a KeyError due to 
-    accessing a missing 'api_key' in the user_config.
-    """
+    """FastAPI app with intentional bug for SRE agent demo."""
+    # Log incoming requests for debugging
     logger.info(f"Endpoint called. TriggerBug={x_trigger_bug}")
     
     user_config = {
@@ -96,8 +93,17 @@ async def get_data(
 
     if x_trigger_bug and x_trigger_bug.lower() == "true":
         logger.warning("Simulating crash...")
-        # INTENTIONAL BUG FOR SRE AGENT TO FIX
-        api_key = user_config["api_key"] 
+        # FIX: Use .get() to avoid KeyError
+        api_key = user_config.get("api_key") 
+        if api_key is None:
+            logger.error("api_key not found in user_config")
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "status": "error",
+                    "message": "api_key not found",
+                }
+            )
         return {"data": {"key": api_key}, "message": "Success", "timestamp": "now"}
 
     return DataResponse(
