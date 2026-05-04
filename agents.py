@@ -7,6 +7,8 @@ Core agents:
 - PR Creator: Opens GitHub Pull Request
 """
 
+import inspect
+import os
 from datetime import datetime, timezone
 
 from langchain_core.messages import AIMessage, HumanMessage, SystemMessage
@@ -15,6 +17,37 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from config import settings
 from state import SREAgentState
 from tools import fetch_logs, open_github_pr, run_tests
+
+
+def read_app_code() -> str:
+    """Read app.py code with absolute path and fallback to inspect."""
+    # Try absolute path first
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    app_path = os.path.join(base_dir, "app.py")
+    
+    print(f"   [DEBUG] Attempting to read app.py from: {app_path}")
+    
+    if os.path.exists(app_path):
+        try:
+            with open(app_path, "r") as f:
+                code = f.read()
+            print(f"   [DEBUG] Successfully read app.py from file")
+            return code
+        except Exception as e:
+            print(f"   [ERROR] Failed to read app.py from file: {e}")
+    
+    # Fallback: try to import and use inspect
+    try:
+        import app
+        code = inspect.getsource(app)
+        print(f"   [DEBUG] Successfully read app.py using inspect module")
+        return code
+    except Exception as e:
+        print(f"   [ERROR] Failed to read app.py using inspect: {e}")
+        raise FileNotFoundError(
+            f"Cannot read app.py. Tried file path: {app_path} and inspect module. "
+            f"Error: {e}"
+        )
 
 
 def get_llm(temperature: float = 0):
@@ -189,10 +222,9 @@ Please generate a NEW fix that addresses these validation failures."""
 
     # Read original code
     try:
-        with open("app.py", "r") as f:
-            original_code = f.read()
-    except Exception:
-        original_code = "[Could not read original app.py file]"
+        original_code = read_app_code()
+    except Exception as e:
+        original_code = f"[Could not read original app.py file: {e}]"
 
     prompt = f"""Root Cause Analysis:
 {root_cause}
@@ -247,9 +279,8 @@ def validator_node(state: SREAgentState) -> dict:
 
     # Read original code
     try:
-        with open("app.py", "r") as f:
-            original_code = f.read()
-    except Exception:
+        original_code = read_app_code()
+    except Exception as e:
         original_code = ""
 
     # Run tests

@@ -22,7 +22,10 @@ def fetch_logs(time_range: str = "1h", severity: str = "error") -> str:
     from config import settings
     log_file = settings.log_file
 
+    print(f"   [DEBUG] Attempting to fetch logs from: {log_file}")
+
     if not os.path.exists(log_file):
+        print(f"   [ERROR] Log file not found at: {log_file}")
         return (
             "No logs found. The application may not have been started yet, "
             "or no errors have occurred. Please ensure the FastAPI app is running "
@@ -257,12 +260,16 @@ def _simulate_pr_creation(
     if not branch_name:
         branch_name = f"fix/sre-agent-{timestamp}"
 
-    # Save fix to local file
-    fix_file = f"generated_fix_{timestamp}.py"
+    # Save fix to local file with absolute path
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    fix_file = os.path.join(base_dir, f"generated_fix_{timestamp}.py")
+    print(f"   [DEBUG] Saving fix to: {fix_file}")
     try:
         with open(fix_file, "w") as f:
             f.write(fix_code)
-    except Exception:
+        print(f"   [DEBUG] Successfully saved fix to file")
+    except Exception as e:
+        print(f"   [ERROR] Failed to save fix to file: {e}")
         pass
 
     simulated_pr_url = "https://github.com/your-repo/pull/123"

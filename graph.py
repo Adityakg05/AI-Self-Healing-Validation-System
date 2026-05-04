@@ -12,6 +12,7 @@ Graph Flow:
                                               (if tests pass)
 """
 
+import os
 from typing import Literal
 
 from langgraph.checkpoint.memory import MemorySaver
@@ -128,10 +129,14 @@ def visualize_graph(output_file: str = "sre_agent_graph.png"):
         # Get visualization
         graph_image = app.get_graph().draw_mermaid_png()
 
-        with open(output_file, "wb") as f:
+        # Use absolute path
+        base_dir = os.path.dirname(os.path.abspath(__file__))
+        output_path = os.path.join(base_dir, output_file)
+
+        with open(output_path, "wb") as f:
             f.write(graph_image)
 
-        print(f"[SUCCESS] Graph visualization saved to {output_file}")
+        print(f"[SUCCESS] Graph visualization saved to {output_path}")
         return Image(graph_image)
     except ImportError:
         print("[WARNING] Graph visualization requires IPython. Skipping.")
