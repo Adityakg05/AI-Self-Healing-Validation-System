@@ -82,9 +82,10 @@ def check_app_running() -> bool:
         backend_url = os.getenv("BACKEND_URL", f"http://127.0.0.1:8000")
         # Ping the health endpoint to verify backend is alive
         health_url = f"{backend_url}/health"
-        response = httpx.get(health_url, timeout=2.0)
+        response = httpx.get(health_url, timeout=10.0)
         return response.status_code == 200
-    except Exception:
+    except Exception as e:
+        print(f"Health check failed: {e}")
         return False
 
 
