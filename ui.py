@@ -257,7 +257,12 @@ Please investigate and fix the issue.
 
     except Exception as e:
         st.error(f"❌ Workflow failed: {str(e)}")
-        st.exception(e)
+        st.error(f"Error type: {type(e).__name__}")
+        st.error("This might be due to missing API keys or configuration issues.")
+        with st.expander("🔍 Debug Information", expanded=True):
+            st.code(f"Settings:\n- LLM Provider: {settings.llm_provider}\n- Has Groq Key: {bool(settings.groq_api_key)}\n- Has Gemini Key: {bool(settings.gemini_api_key)}\n- Has GitHub Token: {bool(settings.github_token)}\n- Log File: {settings.log_file}")
+        if st.button("🔄 Retry Workflow"):
+            st.rerun()
 
 
 def main():
