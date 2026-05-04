@@ -3,9 +3,10 @@ services:
   - type: web
     name: ai-self-healing-validation-system-ui
     env: docker
-    dockerfilePath: ./Dockerfile.streamlit
+    # dockerfilePath: ./Dockerfile (using default)
     plan: free
     autoDeploy: true
+    healthCheckPath: /_stcore/health
     envVars:
       - key: PYTHONUNBUFFERED
         value: 1
