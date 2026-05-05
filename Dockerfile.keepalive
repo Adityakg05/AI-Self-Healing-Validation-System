@@ -1,0 +1,15 @@
+FROM python:3.11-slim
+
+WORKDIR /app
+
+# Install requests
+RUN pip install requests
+
+# Copy keep-alive service
+COPY keep_alive_service.py .
+
+# Set environment variable for backend URL
+ENV BACKEND_URL=https://ai-self-healing-validation-system.onrender.com
+
+# Run keep-alive service
+CMD python keep_alive_service.py

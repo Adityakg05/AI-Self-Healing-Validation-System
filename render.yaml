@@ -1,4 +1,33 @@
 services:
+  # FastAPI Backend Service
+  - type: web
+    name: ai-self-healing-validation-system
+    env: docker
+    dockerfilePath: ./Dockerfile.backend
+    plan: free
+    autoDeploy: true
+    healthCheckPath: /health
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: PORT
+        value: 8000
+      - key: LOG_FILE
+        value: /tmp/app_logs.txt
+
+  # Keep-Alive Service (prevents backend from sleeping)
+  - type: worker
+    name: ai-self-healing-keepalive
+    env: docker
+    dockerfilePath: ./Dockerfile.keepalive
+    plan: free
+    autoDeploy: true
+    envVars:
+      - key: PYTHONUNBUFFERED
+        value: 1
+      - key: BACKEND_URL
+        value: https://ai-self-healing-validation-system.onrender.com
+
   # Streamlit UI Service
   - type: web
     name: ai-self-healing-validation-system-ui

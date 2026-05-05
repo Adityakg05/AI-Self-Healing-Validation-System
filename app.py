@@ -28,8 +28,19 @@ def test():
 
 @app.get("/health")
 def health():
-    # Readiness probe for monitoring systems
-    return {"status": "ok"}
+    # Enhanced readiness probe for monitoring systems
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "service": "AI-Self-Healing-Validation-System",
+        "version": "1.0.0",
+        "uptime": "active"
+    }
+
+@app.get("/ping")
+def ping():
+    # Simple ping endpoint for keep-alive services
+    return {"message": "pong", "timestamp": datetime.now(timezone.utc).isoformat()}
 
 @app.post("/run-agent")
 def trigger_agent():
