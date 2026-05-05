@@ -1,5 +1,7 @@
 import logging
 import os
+import threading
+import time
 import uvicorn
 from datetime import datetime, timezone
 from typing import Optional
@@ -8,14 +10,33 @@ from fastapi.responses import JSONResponse, RedirectResponse
 from pydantic import BaseModel
 from config import settings
 
-# Setup Logging
+# Setup logging
 _fmt = logging.Formatter("%(asctime)s - %(levelname)s - %(message)s")
 _handler = logging.FileHandler(settings.log_file)
 _handler.setFormatter(_fmt)
 logging.basicConfig(level=logging.INFO, handlers=[_handler, logging.StreamHandler()])
 logger = logging.getLogger("ProductionService")
 
-app = FastAPI(title="AI Self-Healing System")
+app = FastAPI(title="AI-Self-Healing-Validation-System")
+
+# Self-ping mechanism to keep the service alive
+def self_ping():
+    """Ping the service every 10 minutes to keep it awake."""
+    while True:
+        try:
+            import requests
+            # Ping our own health endpoint
+            response = requests.get("http://localhost:8000/health", timeout=5)
+            logger.info(f"Self-ping successful: {response.status_code}")
+        except Exception as e:
+            logger.error(f"Self-ping failed: {e}")
+        
+        # Wait 10 minutes
+        time.sleep(600)
+
+# Start self-ping in background thread
+ping_thread = threading.Thread(target=self_ping, daemon=True)
+ping_thread.start()
 
 @app.get("/")
 def home():
@@ -23,17 +44,28 @@ def home():
 
 @app.get("/test")
 def test():
+    # Basic connectivity check
     return {"status": "working"}
 
 @app.get("/health")
 def health():
-    return {"status": "ok"}
+    # Enhanced readiness probe for monitoring systems
+    return {
+        "status": "ok",
+        "timestamp": datetime.now(timezone.utc).isoformat(),
+        "service": "AI-Self-Healing-Validation-System",
+        "version": "1.0.0",
+        "uptime": "active"
+    }
+
+@app.get("/ping")
+def ping():
+    # Simple ping endpoint for keep-alive services
+    return {"message": "pong", "timestamp": datetime.now(timezone.utc).isoformat()}
 
 @app.post("/run-agent")
 def trigger_agent():
-    """
-    Manually trigger the self-healing agent workflow via API.
-    """
+    """Trigger self-healing agent workflow."""
     try:
         from main import run_self_healing_workflow
         
@@ -81,11 +113,8 @@ async def get_data(
     request: Request,
     x_trigger_bug: Optional[str] = Header(None, alias="X-Trigger-Bug")
 ):
-    """
-    Core data endpoint.
-    BUG: When X-Trigger-Bug is 'true', it crashes with a KeyError due to 
-    accessing a missing 'api_key' in the user_config.
-    """
+    """FastAPI app with intentional bug for SRE agent demo."""
+    # Log incoming requests for debugging
     logger.info(f"Endpoint called. TriggerBug={x_trigger_bug}")
     
     user_config = {
@@ -96,8 +125,17 @@ async def get_data(
 
     if x_trigger_bug and x_trigger_bug.lower() == "true":
         logger.warning("Simulating crash...")
-        # INTENTIONAL BUG FOR SRE AGENT TO FIX
-        api_key = user_config["api_key"] 
+        # FIX: Use .get() to avoid KeyError
+        api_key = user_config.get("api_key") 
+        if api_key is None:
+            logger.error("api_key not found in user_config")
+            return JSONResponse(
+                status_code=500,
+                content={
+                    "status": "error",
+                    "message": "api_key not found in user_config"
+                }
+            )
         return {"data": {"key": api_key}, "message": "Success", "timestamp": "now"}
 
     return DataResponse(
@@ -105,6 +143,19 @@ async def get_data(
         message="Success",
         timestamp=datetime.now(timezone.utc).isoformat()
     )
+
+@app.get("/api/logs")
+def get_logs():
+    """Retrieve application logs."""
+    try:
+        if os.path.exists(settings.log_file):
+            with open(settings.log_file, "r") as f:
+                logs = f.read()
+            return {"logs": logs, "status": "success"}
+        else:
+            return {"logs": "", "status": "not_found", "message": "Log file not found"}
+    except Exception as e:
+        return {"logs": "", "status": "error", "message": str(e)}
 
 @app.exception_handler(Exception)
 async def handle_crash(request: Request, exc: Exception):
