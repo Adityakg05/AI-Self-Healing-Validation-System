@@ -1,5 +1,7 @@
 import logging
 import os
+import threading
+import time
 import uvicorn
 from datetime import datetime, timezone
 from typing import Optional
@@ -16,6 +18,25 @@ logging.basicConfig(level=logging.INFO, handlers=[_handler, logging.StreamHandle
 logger = logging.getLogger("ProductionService")
 
 app = FastAPI(title="AI-Self-Healing-Validation-System")
+
+# Self-ping mechanism to keep the service alive
+def self_ping():
+    """Ping the service every 10 minutes to keep it awake."""
+    while True:
+        try:
+            import requests
+            # Ping our own health endpoint
+            response = requests.get("http://localhost:8000/health", timeout=5)
+            logger.info(f"Self-ping successful: {response.status_code}")
+        except Exception as e:
+            logger.error(f"Self-ping failed: {e}")
+        
+        # Wait 10 minutes
+        time.sleep(600)
+
+# Start self-ping in background thread
+ping_thread = threading.Thread(target=self_ping, daemon=True)
+ping_thread.start()
 
 @app.get("/")
 def home():
