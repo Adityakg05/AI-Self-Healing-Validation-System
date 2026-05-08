@@ -1,6 +1,6 @@
 # AI Self-Healing SRE Agent
 
-A simple but effective system that uses AI agents to find and fix bugs in a web application. Instead of just sending an alert, this tool investigates the logs and proposes a code fix automatically
+A simple but effective system that uses AI agents to find and fix bugs in a web application. Instead of just sending an alert, this tool investigates the logs and proposes a code fix automatically.
 
 ## ❓ The Problem
 In many small projects, a simple bug (like a missing key in a dictionary) can crash a service and go unnoticed for hours. Manually checking logs and writing a fix is repetitive work. I wanted to see if I could automate this triage process using LLMs.
