@@ -83,8 +83,6 @@ async def get_data(
 ):
     """
     Core data endpoint.
-    BUG: When X-Trigger-Bug is 'true', it crashes with a KeyError due to 
-    accessing a missing 'api_key' in the user_config.
     """
     logger.info(f"Endpoint called. TriggerBug={x_trigger_bug}")
     
@@ -97,7 +95,14 @@ async def get_data(
     if x_trigger_bug and x_trigger_bug.lower() == "true":
         logger.warning("Simulating crash...")
         # INTENTIONAL BUG FOR SRE AGENT TO FIX
-        api_key = user_config["api_key"] 
+        api_key = user_config.get("api_key")  # Use get() to avoid KeyError
+        if api_key is None:
+            return JSONResponse(
+                status_code=400,
+                content={
+                    "error": "Missing required 'api_key' in user_config"
+                }
+            )
         return {"data": {"key": api_key}, "message": "Success", "timestamp": "now"}
 
     return DataResponse(
